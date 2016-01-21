@@ -1,0 +1,6 @@
+﻿
+.cls_container{border:1px solid ;width:668px;font-size:12px;height:130px;overflow:hidden; background-color:Maroon ; }
+.cls_container table{list-style-type:none;margin:0;padding:0;margin-left:32px;}
+.cls_container table tr{height:26px;line-height:26px;width:320px;float:left;display:inline; color:Blue;}
+
+.cls_container table td{color:Blue; }

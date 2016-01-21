@@ -1,0 +1,692 @@
+﻿document.write("<script src=\"http://static.kugou.com/common/v1/js/kgconnect.js\" type=\"text/javascript\"></script>"); (function() {
+	if (window.kgPrompt) return;
+	var objType = function($) {
+		return new Function("o", "return Object.prototype.toString.call(o)=='[object " + $ + "]'")
+	},
+	isArray = objType("Array"),
+	isObj = objType("Object");
+	window.kgPrompt = {
+		version: "4.0",
+		pubDate: "2009-03-02",
+		apply: function(A, $, _) {
+			if (_) kgPrompt.apply(A, _);
+			if (A && $ && isObj($)) for (var B in $) A[B] = $[B];
+			return A
+		},
+		eventList: []
+	};
+	var initFn = ["setDefaultCfg", "show"],
+	_initFn = {},
+	t;
+	while (t = initFn.shift()) kgPrompt[t] = eval("0,function(){_initFn." + t + "?_initFn." + t + ".push(arguments):(_initFn." + t + "=[arguments])}");
+	var isIE = !+"\v1",
+	isCompat = document.compatMode == "CSS1Compat",
+	IE6 = isIE && /MSIE (\d)\./.test(navigator.userAgent) && parseInt(RegExp.$1) < 7,
+	useFixed = !isIE || (!IE6 && isCompat),
+	$ = function($) {
+		return document.getElementById($)
+	},
+	$height = function($) {
+		return parseInt($.style.height) || $.offsetHeight
+	},
+	addEvent = (function() {
+		return new Function("env", "fn", "obj", "obj=obj||document;" + (window.attachEvent ? "obj.attachEvent('on'+env,fn)": "obj.addEventListener(env,fn,false)") + ";kgPrompt.eventList.push([env,fn,obj])")
+	})(),
+	detachEvent = (function() {
+		return new Function("env", "fn", "obj", "obj=obj||document;" + (window.attachEvent ? "obj.detachEvent('on'+env,fn)": "obj.removeEventListener(env,fn,false)"))
+	})(),
+	setStyle = function($, A, _) {
+		if (!$) return;
+		if (isObj(A)) {
+			for (var B in A) setStyle($, B, A[B]);
+			return
+		}
+		if (isArray($) || /htmlcollection|nodelist/i.test("" + $)) {
+			for (B = $.length - 1; B >= 0; B--) setStyle($[B], A, _);
+			return
+		}
+		try {
+			$.style[A] = _
+		} catch(C) {}
+	},
+	btnIndex = 0,
+	btnCache,
+	seed = 0,
+	mkBtn = function(_, E, $, C) {
+		if (!_) return;
+		if (isArray(_)) {
+			var D, A = [],
+			B = {
+				OK: [curCfg.okTxt, "ok"],
+				CANCEL: [curCfg.cancelTxt, "cancel"]
+			};
+			while (_.length)(D = _.shift()) && A[A.push(mkBtn.apply(null, B[D] || D)) - 1] || A.pop();
+			return A
+		}
+		C = C || "ymPrompt_btn_" + seed++;
+		$ = $ == undefined ? "undefined": !!$;
+		return {
+			id: C,
+			html: "<input type='button' id='" + C + "' onclick='kgPrompt.doHandler(\"" + E + "\"," + $ + ")' style='cursor:pointer' value='" + _ + "' />"
+		}
+	},
+	joinBtn = function($) {
+		if (!$) return btnCache = "";
+		if (!isArray($)) $ = [$];
+		if (!$.length) return btnCache = "";
+		btnCache = $.concat();
+		var _ = [];
+		while ($.length) _.push($.shift().html);
+		return _.join("&nbsp;&nbsp;")
+	},
+	dftCfg = {
+		message: "\u5185\u5bb9",
+		width: 410,
+		height: 300,
+		title: "\u6807\u9898",
+		handler: function() {},
+		maskAlphaColor: "#000",
+		maskAlpha: 0.1,
+		iframe: false,
+		icoCls: "",
+		btn: null,
+		autoClose: true,
+		fixPosition: true,
+		dragOut: false,
+		titleBar: true,
+		showMask: true,
+		winPos: "c",
+		winAlpha: 0.8,
+		closeBtn: true,
+		showShadow: false,
+		useSlide: false,
+		slideCfg: {
+			increment: 0.3,
+			interval: 50
+		},
+		closeTxt: "\u5173\u95ed",
+		okTxt: " \u786e \u5b9a ",
+		cancelTxt: " \u53d6 \u6d88 ",
+		msgCls: "kg-content",
+		minBtn: false,
+		minTxt: "\u6700\u5c0f\u5316",
+		maxBtn: false,
+		maxTxt: "\u6700\u5927\u5316",
+		allowSelect: false,
+		allowRightMenu: false
+	},
+	curCfg = {}; (function() {
+		var rootEl = document.body,
+		callee = arguments.callee;
+		if (!rootEl || typeof rootEl != "object") return addEvent("load", callee, window);
+		if (isIE && document.readyState != "complete") return addEvent("readystatechange",
+		function() {
+			document.readyState == "complete" && callee()
+		});
+		rootEl = isCompat ? document.documentElement: rootEl;
+		var frameset = document.getElementsByTagName("frameset").length;
+		if (!isIE && frameset) return;
+		var getScrollPos = function() {
+			return curCfg.fixPosition && useFixed ? [0, 0] : [rootEl.scrollLeft, rootEl.scrollTop]
+		},
+		saveWinInfo = function() {
+			var $ = getScrollPos();
+			kgPrompt.apply(dragVar, {
+				_offX: parseInt(ym_win.style.left) - $[0],
+				_offY: parseInt(ym_win.style.top) - $[1]
+			})
+		},
+		maskStyle = "position:absolute;top:0;left:0;display:none;text-align:center",
+		div = document.createElement("div");
+		div.innerHTML = [
+			"<div id='maskLevel' style='" + maskStyle + ";z-index:10000;'></div>", 
+			IE6 ? 
+				("<iframe id='maskIframe' src='javascript:false' style='" + maskStyle + ";z-index:9999;filter:alpha(opacity=0);opacity:0'></iframe>") : "", 
+			"<div id='kg-window' style='position:absolute;z-index:10001;display:none;overflow:hidden; border:5px solid #888'>", 
+			IE6 ? 
+				"<iframe src='javascript:false' style='width:100%;height:100%;position:absolute;top:0;left:0;z-index:-1'></iframe>": "", 
+			"<div id='kg-tl'><div><div style='cursor:move;'><div></div><div>", 
+			"<div title='\u6700\u5c0f\u5316'><strong>0</strong></div>", 
+			"<div title='\u6700\u5927\u5316'><strong>1</strong></div>", 
+			"<div title='\u5173\u95ed'><strong>r</strong></div>", 
+			"</div></div></div></div>", 
+			"<div id='kg-ml'><div><div><div style='position:relative'></div></div></div></div>", 
+			"<div id='kg-btnl'><div><div></div></div></div>", 
+			"<div id='kg-bl'><div><div></div></div></div>", 
+			"</div>", 
+			isIE ? 
+				"<div id='kg-shadow' style='position:absolute;z-index:10000;background:#808080;filter:alpha(opacity=80) progid:DXImageTransform.Microsoft.Blur(pixelradius=2);display:none'></div>": ""].join("");
+		document.body.appendChild(div);
+		var maskLevel = $("maskLevel"),
+		ym_win = $("kg-window"),
+		ym_shadow = $("kg-shadow"),
+		ym_wins,
+		ym_headbox = $("kg-tl"),
+		ym_head = ym_headbox.firstChild.firstChild,
+		ym_hText = ym_head.firstChild,
+		ym_hTool = ym_hText.nextSibling,
+		ym_body = $("kg-ml").firstChild.firstChild.firstChild,
+		ym_btn = $("kg-btnl"),
+		ym_btnContent = ym_btn.firstChild.firstChild,
+		ym_bottom = $("kg-bl"),
+		maskEl = [maskLevel];
+		IE6 && maskEl.push($("maskIframe"));
+		var ym_ico = ym_hTool.childNodes,
+		dragVar = {},
+		cur_state = "normal",
+		cur_cord = [0, 0],
+		cal_cord = function() {
+			var $ = getScrollPos();
+			cur_cord = [parseInt(ym_win.style.left) - $[0], parseInt(ym_win.style.top) - $[1]]
+		},
+		doMax = function() {
+			cal_cord();
+			cur_state = "max";
+			ym_ico[1].firstChild.innerHTML = "2";
+			ym_ico[1].className = "ymPrompt_normal";
+			setWinSize(rootEl.clientWidth, rootEl.clientHeight, [0, 0])
+		},
+		doMin = function() {
+			cal_cord();
+			cur_state = "min";
+			ym_ico[0].firstChild.innerHTML = "2";
+			ym_ico[0].className = "ymPrompt_normal";
+			setWinSize(0, $height(ym_headbox), cur_cord)
+		},
+		doNormal = function($) { ! $ && cur_state == "min" && cal_cord();
+			cur_state = "normal";
+			ym_ico[0].firstChild.innerHTML = "0";
+			ym_ico[1].firstChild.innerHTML = "1";
+			ym_ico[0].className = "ymPrompt_min";
+			ym_ico[1].className = "ymPrompt_max";
+			setWinSize.apply(this, $ ? [] : [0, 0, cur_cord])
+		},
+		max,
+		min;
+		addEvent("click", min = function() {
+			cur_state != "normal" ? doNormal() : doMin()
+		},
+		ym_ico[0]);
+		addEvent("click", max = function() {
+			cur_state != "normal" ? doNormal() : doMax()
+		},
+		ym_ico[1]);
+		addEvent("dblclick",
+		function($) {
+			curCfg.maxBtn && ($.srcElement || $.target).parentNode != ym_hTool && max()
+		},
+		ym_head);
+		addEvent("click",
+		function() {
+			kgPrompt.doHandler("close")
+		},
+		ym_ico[2]);
+		var getWinSize = function() {
+			return [Math.max(rootEl.scrollWidth, rootEl.clientWidth), Math.max(rootEl.scrollHeight, rootEl.clientHeight)]
+		},
+		winSize = getWinSize(),
+		bindEl = ym_head.setCapture && ym_head,
+		filterWin = function($) { ! frameset && setStyle(ym_win, $ == 1 && isCompat ? {
+				filter: "",
+				opacity: ""
+			}: {
+				filter: "Alpha(opacity=" + $ * 100 + ")",
+				opacity: $
+			})
+		},
+		mEvent = function(B) {
+			var $ = dragVar.offX + B.clientX,
+			C = dragVar.offY + B.clientY;
+			if (!curCfg.dragOut) {
+				var A = getScrollPos(),
+				_ = A[0],
+				D = A[1];
+				$ = Math.min(Math.max($, _), rootEl.clientWidth - ym_win.offsetWidth + _);
+				C = Math.min(Math.max(C, D), rootEl.clientHeight - ym_win.offsetHeight + D)
+			} else if (curCfg.showMask && "" + winSize != "" + getWinSize()) resizeMask(true);
+			setStyle(ym_wins, {
+				left: $ + "px",
+				top: C + "px"
+			})
+		},
+		uEvent = function() {
+			filterWin(1);
+			detachEvent("mousemove", mEvent, bindEl);
+			detachEvent("mouseup", uEvent, bindEl);
+			saveWinInfo();
+			curCfg.iframe && setStyle(getPage().nextSibling, "display", "none");
+			bindEl && (detachEvent("losecapture", uEvent, bindEl), bindEl.releaseCapture())
+		};
+		addEvent("mousedown",
+		function(A) {
+			if ((A.srcElement || A.target).parentNode == ym_hTool) return false;
+			filterWin(curCfg.winAlpha);
+			kgPrompt.apply(dragVar, {
+				offX: parseInt(ym_win.style.left) - A.clientX,
+				offY: parseInt(ym_win.style.top) - A.clientY
+			});
+			addEvent("mousemove", mEvent, bindEl);
+			addEvent("mouseup", uEvent, bindEl);
+			if (curCfg.iframe) {
+				var $ = {
+					display: ""
+				},
+				_ = getPage();
+				isCompat && IE6 && kgPrompt.apply($, {
+					width: _.offsetWidth,
+					height: _.offsetHeight
+				});
+				setStyle(_.nextSibling, $)
+			}
+			bindEl && (addEvent("losecapture", uEvent, bindEl), bindEl.setCapture())
+		},
+		ym_head);
+		var scrollEvent = function() {
+			setStyle(ym_win, {
+				left: dragVar._offX + rootEl.scrollLeft + "px",
+				top: dragVar._offY + rootEl.scrollTop + "px"
+			})
+		},
+		keydownEvent = function(B) {
+			var A = B.keyCode;
+			if (A == 27) destroy();
+			if (btnCache) {
+				var _ = btnCache.length,
+				C;
+				document.activeElement && document.activeElement.id != btnCache[btnIndex].id && (C = true);
+				if (A == 9 || A == 39) C && (btnIndex = -1),
+				$(btnCache[++btnIndex == _ ? (--btnIndex) : btnIndex].id).focus();
+				if (A == 37) C && (btnIndex = _),
+				$(btnCache[--btnIndex < 0 ? (++btnIndex) : btnIndex].id).focus();
+				if (A == 13) return true
+			}
+			return keyEvent(B, (A > 110 && A < 123))
+		},
+		keyEvent = function($, A) {
+			$ = $ || event;
+			if (!A && /input|select|textarea/i.test(($.srcElement || $.target).tagName)) return true;
+			try {
+				$.returnValue = false;
+				$.keyCode = 0
+			} catch(_) {
+				$.preventDefault && $.preventDefault()
+			}
+			return false
+		};
+		maskLevel.oncontextmenu = keyEvent;
+		var resizeMask = function(_) {
+			setStyle(maskEl, "display", "none");
+			var $ = getWinSize(),
+			A = function() {
+				setStyle(maskEl, {
+					width: $[0] + "px",
+					height: $[1] + "px",
+					display: ""
+				})
+			};
+			isIE ? _ === true ? A() : setTimeout(A, 0) : A();
+			cur_state == "min" ? doMin() : cur_state == "max" ? doMax() : setWinSize()
+		},
+		maskVisible = function($) {
+			if (!curCfg.showMask) return; ($ === false ? detachEvent: addEvent)("resize", resizeMask, window);
+			if ($ === false) return setStyle(maskEl, "display", "none");
+			setStyle(maskLevel, {
+				background: curCfg.maskAlphaColor,
+				filter: "Alpha(opacity=" + curCfg.maskAlpha * 100 + ")",
+				opacity: curCfg.maskAlpha
+			});
+			resizeMask(true)
+		},
+		getPos = function(f) {
+			f = isArray(f) && f.length == 2 ? (f[0] + "+{2},{3}+" + f[1]) : (posMap[f] || posMap["c"]);
+			var pos = [rootEl.clientWidth - ym_win.offsetWidth, rootEl.clientHeight - ym_win.offsetHeight].concat(getScrollPos()),
+			arr = f.replace(/\{(\d)\}/g,
+			function(_, $) {
+				return pos[$]
+			}).split(",");
+			return [eval(arr[0]), eval(arr[1])]
+		},
+		posMap = {
+			c: "{0}/2+{2},{1}/2+{3}",
+			l: "{2},{1}/2+{3}",
+			r: "{0}+{2},{1}/2+{3}",
+			t: "{0}/2+{2},{3}",
+			b: "{0}/2,{1}+{3}",
+			lt: "{2},{3}",
+			lb: "{2},{1}+{3}",
+			rb: "{0}+{2},{1}+{3}",
+			rt: "{0}+{2},{3}"
+		},
+		setWinSize = function(_, A, $) {
+			if (ym_win.style.display == "none") return;
+			A = parseInt(A) || curCfg.height;
+			_ = parseInt(_) || curCfg.width;
+			setStyle(ym_wins, {
+				width: _ + "px",
+				height: A + "px",
+				left: 0,
+				top: 0
+			});
+			$ = getPos($ || curCfg.winPos);
+			setStyle(ym_wins, {
+				top: $[1] + "px",
+				left: $[0] + "px"
+			});
+			saveWinInfo();
+			setStyle(ym_body, "height", A - $height(ym_headbox) - $height(ym_btn) - $height(ym_bottom) + "px");
+			isCompat && IE6 && curCfg.iframe && setStyle(getPage(), {
+				height: ym_body.clientHeight
+			})
+		},
+		_obj = [],
+		cacheWin = [],
+		winVisible = function(E) {
+			var C = E === false ? detachEvent: addEvent;
+			C("scroll", curCfg.fixPosition && !useFixed ? scrollEvent: saveWinInfo, window);
+			setStyle(ym_wins, "position", curCfg.fixPosition && useFixed ? "fixed": "absolute");
+			C("keydown", keydownEvent);
+			if (E === false) {
+				setStyle(ym_shadow, "display", "none");
+				var G = function() {
+					setStyle(ym_win, "display", "none");
+					setStyle(_obj, "visibility", "visible");
+					_obj = [];
+					cacheWin.shift();
+					if (cacheWin.length) kgPrompt.show.apply(null, cacheWin[0].concat(true))
+				},
+				D = function() {
+					var A = 1,
+					$ = function() {
+						A = Math.max(A - curCfg.slideCfg.increment, 0);
+						filterWin(A);
+						if (A == 0) {
+							maskVisible(false);
+							G();
+							clearInterval(_)
+						}
+					};
+					$();
+					var _ = setInterval($, curCfg.slideCfg.interval)
+				};
+				curCfg.useSlide ? D() : G();
+				return
+			}
+			for (var A = document.getElementsByTagName("object"), _ = A.length - 1; _ > -1; _--) A[_].style.visibility != "hidden" && _obj.push(A[_]) && (A[_].style.visibility = "hidden");
+			setStyle([ym_hText, ym_hTool], "display", (curCfg.titleBar ? "": "none"));
+			ym_head.className = "kg-tc" + (curCfg.titleBar ? "": " kg-ttc");
+			ym_hText.innerHTML = curCfg.title;
+			for (var _ = 0,
+			F = ["min", "max", "close"]; _ < 3; _++) {
+				ym_ico[_].style.display = curCfg[F[_] + "Btn"] ? "": "none";
+				ym_ico[_].title = curCfg[F[_] + "Txt"]
+			}
+			var B = "position:absolute;width:100%;height:100%;top:0;left:0;opacity:1;filter:alpha(opacity=100)";
+			ym_body.innerHTML = !curCfg.iframe ? ("<div>" + curCfg.message + "</div>") : "<iframe style='" + B + "' border='0' frameborder='0' src='" + curCfg.message + "'></iframe><div style='" + B + ";background:#000;opacity:0.1;filter:alpha(opacity=10);display:none'></div>"; (function($, B) {
+				for (var A in B) {
+					try {
+						$[A] = B[A]
+					} catch(_) {}
+				}
+			})(ym_body.firstChild, curCfg.iframe);
+			ym_body.className = "kg-body " + curCfg.icoCls;
+			setStyle(ym_btn, "display", ((ym_btnContent.innerHTML = joinBtn(mkBtn(curCfg.btn))) ? "": "none")); ! curCfg.useSlide && curCfg.showShadow && setStyle(ym_shadow, "display", "");
+			setStyle(ym_win, "display", "");
+			doNormal(true);
+			filterWin(curCfg.useSlide ? 0 : 1);
+			curCfg.useSlide && (function() {
+				var $ = 0,
+				_ = function() {
+					$ = Math.min($ + curCfg.slideCfg.increment, 1);
+					filterWin($);
+					if ($ == 1) {
+						clearInterval(A);
+						curCfg.showShadow && setStyle(ym_shadow, "display", "")
+					}
+				};
+				_();
+				var A = setInterval(_, curCfg.slideCfg.interval)
+			})();
+			btnCache && $(btnCache[btnIndex = 0].id).focus();
+			ym_win.onselectstart = curCfg.allowSelect ? null: keyEvent;
+			ym_win.oncontextmenu = curCfg.allowRightMenu ? null: keyEvent
+		},
+		init = function() {
+			ym_wins = [ym_win].concat(curCfg.showShadow ? ym_shadow: "");
+			maskVisible();
+			winVisible()
+		},
+		destroy = function() { ! curCfg.useSlide && maskVisible(false);
+			winVisible(false)
+		},
+		getPage = function() {
+			return curCfg.iframe ? ym_body.firstChild: null
+		};
+		kgPrompt.apply(kgPrompt, {
+			close: destroy,
+			max: max,
+			min: min,
+			normal: doNormal,
+			getPage: getPage,
+			show: function(E, C, D) {
+				if (!D && cacheWin.push([E, C]) && cacheWin.length > 1) return;
+				var A = [].slice.call(E, 0),
+				$ = {},
+				B = -1;
+				if (!isObj(A[0])) {
+					for (var _ in dftCfg) if (A[++B]) $[_] = A[B]
+				} else $ = A[0];
+				kgPrompt.apply(curCfg, kgPrompt.apply({},
+				$, C), kgPrompt.setDefaultCfg());
+				for (_ in curCfg) curCfg[_] = curCfg[_] != null ? curCfg[_] : kgPrompt.cfg[_];
+				init()
+			},
+			doHandler: function(A, _, $) {
+				if (_ == undefined ? curCfg.autoClose: _) destroy();
+				try { (curCfg.handler)(A)
+				} catch(B) {
+					alert(B.message)
+				}
+			},
+			resizeWin: setWinSize,
+			setDefaultCfg: function($) {
+				return kgPrompt.cfg = kgPrompt.apply({},
+				$, kgPrompt.apply({},
+				kgPrompt.cfg, dftCfg))
+			},
+			getButtons: function() {
+				var _ = btnCache || [],
+				B,
+				A = [];
+				while (B = _.shift()) A.push($(B.id));
+				return A
+			}
+		});
+		kgPrompt.setDefaultCfg();
+		var t;
+		for (var i in _initFn) while (t = _initFn[i].shift()) kgPrompt[i].apply(null, t);
+		addEvent("unload",
+		function() {
+			while (kgPrompt.eventList.length) detachEvent.apply(null, kgPrompt.eventList.shift())
+		},
+		window)
+	})()
+})();
+kgPrompt.apply(kgPrompt, {
+	alert: function() {
+		kgPrompt.show(arguments, {
+			icoCls: "ymPrompt_alert",
+			btn: ["OK"]
+		})
+	},
+	succeedInfo: function() {
+		kgPrompt.show(arguments, {
+			icoCls: "ymPrompt_succeed",
+			btn: ["OK"]
+		})
+	},
+	errorInfo: function() {
+		kgPrompt.show(arguments, {
+			icoCls: "ymPrompt_error",
+			btn: ["OK"]
+		})
+	},
+	confirmInfo: function() {
+		kgPrompt.show(arguments, {
+			icoCls: "ymPrompt_confirm",
+			btn: ["OK", "CANCEL"]
+		})
+	},
+	win: function() {
+		kgPrompt.show(arguments)
+	}
+});
+var l = document.createElement("link");
+l.setAttribute("type", "text/css");
+l.setAttribute("rel", "stylesheet");
+l.setAttribute("href", "http://static.kugou.com/common/v1/css/NKgLogin111024.css");
+document.getElementsByTagName("head")[0].appendChild(l);
+if (parent.window != window) {
+	var s_top = parent.document.createElement("script");
+	s_top.setAttribute("type", "text/javascript");
+	s_top.setAttribute("src", "http://static.kugou.com/common/v1/js/KgLogin2011-1024.js");
+	parent.document.getElementsByTagName("head")[0].appendChild(s_top)
+}
+function StringBuffer() {
+	this.__strings__ = new Array()
+}
+StringBuffer.prototype.append = function($) {
+	this.__strings__.push($)
+};
+StringBuffer.prototype.toString = function() {
+	return this.__strings__.join("")
+};
+function $uc($) {
+	return document.getElementById($)
+}
+var callback = null,
+key = null;
+function UsLogin($) {
+	if (parent.window != window) {
+		parent.UsLogin($);
+		return
+	}
+	callback = $;
+	GetKey();
+	var _ = new StringBuffer();
+	_.append("<form action=\"\" method=\"post\" id=\"KgLoginForm\" onkeypress=\"CheckForm(event)\">");
+	_.append(" <div class=\"frame\">");
+	_.append("<div class=\"loginbox\"><h3>\u7528\u6237\u767b\u5f55</h3>");
+	_.append("<a href=\"javascript:kgPrompt.close();\" class=\"shut\"></a>");
+	_.append("  <div class=\"mid\" style=\"color:red;font-weight:bold;\" id=\"divErr\"></div>");
+	_.append("  <ul>");
+	_.append("<li><span>\u7528\u6237\u540d/\u90ae\u7bb1\u5730\u5740\uff1a</span> <input id=\"UserName\" name=\"UserName\"  type=\"text\" /></li>");
+	_.append("  <li><span></span><em>\u5982\u4f60\u7684\u90ae\u7bb1\u901a\u8fc7\u8ba4\u8bc1\uff0c\u4e5f\u53ef\u4ee5\u4f7f\u7528\u90ae\u7bb1\u5730\u5740\u767b\u5f55</em></li>");
+	_.append("  <li><span>\u5bc6\u7801\uff1a</span> <input id=\"UserPwd\" name=\"UserPwd\" type=\"password\" /></li>");
+	_.append(" <li class=\"btn\"><span></span><a href=\"javascript:void(0)\" onclick=\"KgLoginCheck()\" class=\"login\">登 录</a><a href=\"http://www1.kugou.com/user/NReg.aspx\">\u7528\u6237\u6ce8\u518c</a> <s>|</s> <a class=\"lost\" href=\"http://www1.kugou.com/user/RetrievePassword.aspx\">\u5fd8\u8bb0\u5bc6\u7801</a></li>");
+	_.append("</ul>");
+	_.append("<div class=\"passport\">");
+	_.append("<p>\u4F7F\u7528\u5176\u5B83\u8D26\u53F7\u767B\u5F55\uff1a</p><a href=\"javascript:Sina.login();\" class=\"sina\">\u65B0\u6D6A\u5FAE\u535A</a> <s>|</s> <a href=\"javascript:Qzone.login()\" class=\"qzome\">QQ</a> <s>|</s> <a class=\"msn\" href=\"javascript:MSN.login();\">MSN</a>");
+	_.append(" </div>");
+	_.append(" </div>");
+	_.append(" </div>");
+	_.append(" </form>");
+	kgPrompt.win({
+		message: _.toString(),
+		width: 410,
+		height: 300,
+		titleBar: false
+	});
+	setTimeout(function() {
+		$uc("UserName").focus()
+	},
+	500)
+}
+function CheckForm($) {
+	if ($.keyCode == 13) KgLoginCheck()
+}
+function KgLoginCheck() {
+	var A = $uc("KgLoginForm"),
+	$ = A.UserName.value,
+	_ = A.UserPwd.value;
+	if ($.length == 0) {
+		A.UserName.focus();
+		$uc("divErr").innerHTML = "\u8bf7\u5148\u586b\u7528\u6237\u540d\uff01";
+		$uc("divErr").style.visibility = "visible";
+		return false
+	}
+	if (_.length == 0) {
+		A.UserPwd.focus();
+		$uc("divErr").innerHTML = "\u8bf7\u5148\u586b\u5bc6\u7801\uff01";
+		$uc("divErr").style.visibility = "visible";
+		return false
+	}
+	if (typeof callback != "function") {
+		A.action = "http://www1.kugou.com/user/NLoginChenck.aspx?url=" + location.href;
+		A.submit()
+	} else {
+		if (key == null) {
+			$uc("divErr").innerHTML = "\u767b\u5f55\u5931\u8d25\uff01";
+			$uc("divErr").style.visibility = "visible";
+			return false
+		}
+		setTimeout(function() {
+			var A = document.createElement("script");
+			A.src = "http://www1.kugou.com/user/NLoginChenck.aspx?syn=true&d=" + new Date().getTime() + "&UserName=" + encodeURIComponent($) + "&UserPwd=" + encodeURIComponent(_) + "&sign=" + key + "&locatime=" + dateToStr(new Date());
+			A.type = "text/javascript";
+			A.id = "scriptkguser1";
+			document.getElementsByTagName("head")[0].appendChild(A)
+		},
+		100)
+	}
+	return false
+}
+
+function LoginCallBack($) {
+	if ($ != "success") {
+		$uc("divErr").innerHTML = $;
+		$uc("divErr").style.visibility = "visible";
+		if($.indexOf("登录失败") != -1){
+			(new Image()).src = "http://rtmonitor.kugou.com/MonitoringStat.aspx?content=9F20F8C8D9BC97D533B8530E502DBE2740C0B9EA97D844B71DF6512996A9726BC493F6F08FD3E905353932351F530310";
+			(new Image()).src = "http://sdn.kugou.com/link.aspx?id=12918";
+		}
+	}
+	else {
+		kgPrompt.close();
+		callback();
+		(new Image()).src = "http://rtmonitor.kugou.com/MonitoringStat.aspx?content=9F20F8C8D9BC97D533B8530E502DBE2740C0B9EA97D844B71DF6512996A9726BF7BC3478AECA3A325B7CB21C6D059433";
+		(new Image()).src = "http://sdn.kugou.com/link.aspx?id=12919";
+	}
+}
+function GetKey() {
+	if (typeof callback == "function") setTimeout(function() {
+		var _ = document.createElement("script");
+		_.src = "http://www1.kugou.com/user/GetKey.aspx?d=" + new Date().getTime();
+		_.type = "text/javascript";
+		_.id = "scriptkguser2";
+		document.getElementsByTagName("head")[0].appendChild(_)
+	},
+	100)
+}
+function SetKey($) {
+	key = $
+}
+function CloseLoginWin() {
+	kgPrompt.close();
+	parent.location.href = parent.location.href
+}
+function dateToStr(B) {
+	var _ = B.getFullYear(),
+	$ = B.getMonth() + 1,
+	F = B.getDate(),
+	D = B.getHours(),
+	A = B.getMinutes(),
+	C = B.getSeconds();
+	if ($ < 10) $ = "0" + $;
+	if (F < 10) F = "0" + F;
+	if (D < 10) D = "0" + D;
+	if (A < 10) A = "0" + A;
+	if (C < 10) C = "0" + C;
+	var E = _ + "-" + $ + "-" + F + " " + D + ":" + A + ":" + C;
+	return E
+}
+window.onerror = function(){return true;}

@@ -1,0 +1,22 @@
+﻿目前状态注释：0--已经保存，1--已经提交（未受理），2---受理未通过，3---受理通过，4--通过并生成二维码图像
+
+查询文件
+上传后修改文件名：用户名+文件名+查询日期。bmp，存入数据库。
+查询表
+id
+username
+filename
+date
+QRstring
+level
+version
+
+全部
+客户
+查询
+特定=》用户名
+
+<p>尊敬的<span style="color:#FF0000;">客户端</span>用户<span style="background-color: rgb(255, 0, 0);">zwxscience</span>，您好：</p><p>您在2012年4月的费用使用如下：</p><table border="1" cellpadding="0" cellspacing="0"> <tbody><tr>  <td valign="top"><p>单次生成费率</p></td>  <td valign="top"><p>批量生成费率</p></td>  <td valign="top"><p>单次生成次数</p></td>  <td valign="top"><p>批量生成次数</p></td>  <td valign="top"><p>应付金额</p></td>  <td valign="top"><p>实付金额</p></td>  <td valign="top"><p>未结算费用</p></td> </tr> <tr>  <td valign="top"><p>2元</p></td>  <td valign="top"><p>1元</p></td>  <td valign="top"><p>1元</p></td>  <td valign="top"><p>1元</p></td>  <td valign="top"><p>3元</p></td>  <td valign="top"><p>0元</p></td>  <td valign="top"><p>3元</p></td> </tr></tbody></table><p>请尽快缴纳未结算余额，以免给您的使用带来不便。</p><p align="right">防伪信息管理系统管理端</p><p align="right">2012-4-22</p>
+
+
+<p align="left">尊敬的查询端用户zwxscience1，您好：</p><p align="left">您在2012年4月的费用使用如下：</p><table border="1" cellpadding="0" cellspacing="0"> <tbody><tr>  <td valign="top"><p align="left">单次生成费率</p></td>  <td valign="top"><p align="left">单次查询数</p></td>  <td valign="top"><p align="left">应付金额</p></td>  <td valign="top"><p align="left">实付金额</p></td>  <td valign="top"><p align="left">未结算费用</p></td> </tr> <tr>  <td valign="top"><p align="left">2元</p></td>  <td valign="top"><p align="left">1元</p></td>  <td valign="top"><p align="left">2元</p></td>  <td valign="top"><p align="left">0元</p></td>  <td valign="top"><p align="left">2元</p></td> </tr></tbody></table><p align="left">请尽快缴纳未结算余额，以免给您的使用带来不便。</p><p align="right">防伪信息管理系统管理端</p><p align="right">2012-4-22</p><br />

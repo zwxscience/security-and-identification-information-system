@@ -1,0 +1,130 @@
+
+*
+{
+	margin: 0em;
+	padding: 0em;
+}
+
+h1
+{
+	
+	
+}
+
+body
+{
+	font-family: "trebuchet ms", sans-serif;
+	font-size: 10pt;
+	background-color: #fff;
+	color: #555;
+}
+
+a
+{
+	color: #007788;
+	text-decoration: underline;
+}
+
+a:hover
+{
+	text-decoration: none;
+}
+
+.clear
+{
+	clear: both;
+}
+
+/* Outer */
+
+#outer
+{
+	
+	
+	
+}
+
+/* Header */
+
+#header
+{
+	position: absolute;
+	margin-left:0em;
+	margin-right:0em;
+	margin-top:5px;
+	height: 129px;
+	width: 100%;
+	background:#073C4C url('../images/1.jpg') top right repeat ;
+	
+}
+
+#header h1
+{
+	position: absolute;
+	top: 1.2em;
+	left: 1.0em; 
+	font-size: 3em;
+	color: #fff;
+	
+}
+
+#header h2
+{
+	position: absolute;
+	top: 7em;
+	left: 4.5em; 
+	font-size: 1.8em;
+	font-weight: normal;
+	color: #fff;
+}
+
+#header a
+{
+	color: #fff;
+	text-decoration: none;
+}
+
+/* Menu */
+
+#menu
+{
+	position: absolute;
+	width: 100%;
+	top: 0em;
+	left: 0em;
+	background: #007788 url('../images/x3.gif') top left repeat-x;
+	height: 4em;
+}
+#menulink
+{
+	position:absolute;
+	top:2em;
+}
+
+
+
+/* Content */
+
+#content
+{
+	
+	line-height: 1.7em;
+	padding-top: 140px;
+	width: 100%;
+	margin-left:0em;
+	margin-right:0em;
+}
+
+
+
+
+
+/* Footer */
+
+#footer
+{
+	padding: 1.5em;
+	margin-right: auto;
+	margin-left:auto;
+	background: #fff url('../images/x2.gif') top left repeat-x;
+}

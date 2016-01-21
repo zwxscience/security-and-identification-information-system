@@ -1,0 +1,27 @@
+﻿body 
+{
+
+}
+.sec_menu {
+	 BACKGROUND:#F0F8FF; OVERFLOW: hidden;  
+}
+.list_title {
+	
+}
+.list_title span {
+	FONT-WEIGHT: bold;
+	LEFT: 8px;
+	COLOR: #ffffff;
+	POSITION: relative;
+	TOP: 0px;
+	visibility: visible;
+}
+.list_title2 {
+	
+}
+.list_title2 span {
+	FONT-WEIGHT: bold; LEFT: 8px; COLOR: #ffffff; POSITION: relative; TOP: 0px
+}
+
+
+ 

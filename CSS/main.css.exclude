@@ -1,0 +1,45 @@
+﻿
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, form, fieldset, input, textarea, p, blockquote, th, td { margin:0; padding:0;}
+ul{ list-style:none;}
+button{ border:0 none; padding:0; cursor:pointer;}
+img{ border:0;}
+.clear {clear:both;}
+.clear_fix {}
+.clear_fix:after {display:block;clear:both;content:".";visibility:hidden;height:0;font-size:0;}
+#public-header a,#public-nav a,#public-footer a{ text-decoration:none; outline:0}
+
+
+/*header*/
+#public-header{ font:12px/1.5 \5b8b\4f53, Arial, Verdana; height:95px; background:#fff url(../images/default.png) no-repeat 0 -65px; position:relative; width:960px; margin:0 auto}
+#public-header a:hover{ text-decoration:underline}
+#public-header .link{ width:163px; height:46px; position:absolute; text-indent:-9999px; left:8px; top:38px; z-index:10}
+#public-header .login{ position:absolute; right:0; top:20px; background:url(../images/default.png) no-repeat 121px 0; padding-right:20px;}
+#public-header .logined{padding-right:0!important; right:2px; background:#fff;}
+#public-header .logined .pic{ position:absolute; left:-40px; top:-16px}
+#public-header .blue{color:#45BEEE!important; text-decoration:underline; margin-right:5px; display:inline-block}
+#public-header .login a{ color:#888;}
+#public-header .download{ position:absolute; right:3px; bottom:13px; color:#45beee}
+#public-header .download a{ color:#45beee; display:inline-block; padding-left:23px;}
+#public-header .download a.game{ background:url(../images/default.png) no-repeat -132px 0}
+#public-header .download a.client{ background:url(../images/default.png) no-repeat -218px 0; padding-left:16px}
+/*nav*/
+#public-nav{ font-family:Microsoft YaHei; background:url(../images/bg.png) repeat-x; height:35px; width:960px; margin:0 auto}
+#public-nav li{ float:left;}
+#public-nav ul{ float:left; height:35px;}
+#public-nav .n1 a{ color:#fff; font-size:14px; height:35px; line-height:35px; width:107px; text-align:center; display:block;}
+#public-nav .hover a,#public-nav .n1 a:hover,#public-nav .n2 a:hover{ background:#80dbff}
+#public-nav a.h{ background:#80dbff; color:#fff; }
+#public-nav .hover{ position:relative}
+#public-nav .hover span{ border-style:dashed dashed solid dashed; border-color:  #fff ; border-width:5px; position:absolute; bottom:-1px; left:50%; margin-left:-5px; font-size:0; line-height:0}
+#public-nav .nav-line{ float:left; width:12px; height:35px; background:url(../images/default.png) no-repeat -337px 0;  margin:0 15px 0 40px; display:inline}
+#public-nav .n2 a{ padding:0 10px; font-size:12px; height:35px; color:#fff; line-height:35px; margin-left:10px; display:inline; float:left}
+
+/*footer*/
+#public-footer{ font:12px/1.5 宋体,Arial,Verdana; clear:both; margin:0 auto 0; width:960px; padding:80px 0 20px; color:#b2b2b2; position:relative;}
+#public-footer p{ padding:0 15px}
+#public-footer .footer-line{border-top:1px solid #c2c2c2; margin-top:10px; height:10px; line-height:0; font-size:0}
+#public-footer .nav{ color:#9b9b9b; padding-top:8px; }
+#public-footer .nav a{ color:#878787; font-size:14px; display:inline-block; margin-bottom:5px; margin-bottom:0;}
+#public-footer .nav a:hover{color:#5a5a5a; text-decoration:underline}
+#public-footer .link{ width:153px; height:43px; background:url(../images/default.png) no-repeat -200px -538px; position:absolute; text-indent:-9999px; bottom:5px; right:15px}
+
