@@ -1,0 +1,9 @@
+LIBRARY    "QRD"
+EXPORTS
+Multi
+Subtraction
+Test
+picxdel 
+GetQRversion 
+GetQRLevel 
+GetQRstring 
